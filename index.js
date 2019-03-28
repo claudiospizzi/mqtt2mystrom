@@ -82,13 +82,13 @@ function setMyStromSwitch(switchDevice, mode) {
     publishMqttStatus(switchDevice);
 }
 
-function getMyStromSwitch(switchDevice) {
+function getMyStromSwitch(switchDevice, successCallback) {
 
     request.get('http://' + switchDevice.address + '/report', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             device = JSON.parse(body);
             log.info('mystrom switch: relay = ' + device.relay + ' / power = ' + device.power);
-            return device;
+            successCallback(device);
         }
         else {
             log.error('mystrom switch: error get report ' + error);
@@ -107,21 +107,19 @@ function pollMyStromSwitch() {
 
 function publishMqttStatus(switchDevice) {
 
-    switchDeviceStatus = getMyStromSwitch(switchDevice);
-
-    if (switchDeviceStatus !== undefined) {
+    getMyStromSwitch(switchDevice, function(switchDeviceStatus) {
 
         ts = Date.now() / 1000;
 
         payloadRelay = { ts: ts, val: switchDeviceStatus.relay ? 1 : 0 };
         payloadPower = { ts: ts, val: switchDeviceStatus.power };
 
-        mqttClient.publish(mqttClient.publish(cfg.mqtt.name + '/relay/' + device.name, JSON.stringify(payloadRelay), { retain: true }));
-        log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + device.name + ' ' + JSON.stringify(payloadRelay));
+        mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDevice.name, JSON.stringify(payloadRelay), { retain: true });
+        log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDevice.name + ' ' + JSON.stringify(payloadRelay));
 
-        mqttClient.publish(mqttClient.publish(cfg.mqtt.name + '/power/' + device.name, JSON.stringify(payloadPower)));
-        log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + device.name + ' ' + JSON.stringify(payloadPower));
-    }
+        mqttClient.publish(cfg.mqtt.name + '/power/' + switchDevice.name, JSON.stringify(payloadPower));
+        log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDevice.name + ' ' + JSON.stringify(payloadPower));
+    });
 }
 
 setInterval(pollMyStromSwitch, cfg.mystrom.pollInterval * 1000);

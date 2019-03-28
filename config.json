@@ -1,0 +1,17 @@
+{
+    "log": "debug",
+    "mqtt": {
+        "url": "mqtt://192.168.1.10",
+        "name": "mystrom",
+        "secure": false
+    },
+    "mystrom": {
+        "pollInterval": 60,
+        "switchDevices": [
+            {
+                "name": "MyStrom Switch 1",
+                "address": "192.168.1.20"
+            }
+        ]
+    }
+}

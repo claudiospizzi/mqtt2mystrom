@@ -1,0 +1,20 @@
+{
+  "name": "mqtt2mystrom",
+  "version": "1.0.0",
+  "description": "Node.js based interface between MQTT and MyStrom for a smart home",
+  "keywords": [
+    "smarthome"
+  ],
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/claudiospizzi/mqtt2mystrom.git"
+  },
+  "author": "Claudio Spizzi",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "^2.18.8",
+    "request": "^2.88.0",
+    "yalm": "^4.1.0"
+  }
+}

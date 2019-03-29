@@ -5,7 +5,7 @@ const mqtt = require('mqtt');
 const request = require('request');
 
 const pkg = require('./package.json');
-const cfg = require('./config.json');
+const cfg = require(process.argv[2] || './config.json');
 
 let connected;
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 const log = require('yalm');
 const mqtt = require('mqtt');

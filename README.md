@@ -11,13 +11,52 @@ relay state (on, off) can be controlled over mqtt.
 
 ## Installation
 
+This node.js application is installed from the npm repository and executed with
+the node command.
+
 ```bash
 npm install -g mqtt2mystrom
+node /usr/local/bin/mqtt2mystrom
 ```
 
-## Usage
+Alternatively, the module can be executed as a docker container. Use the
+following Dockerfile to build a container injecting the config file.
 
-tbd
+```dockerfile
+FROM node:alpine
+
+RUN npm install -g mqtt2mystrom@1.0.3
+
+COPY config.json /etc/mqtt2mystrom.json
+
+ENTRYPOINT [ "/usr/local/bin/mqtt2mystrom", "/etc/mqtt2mystrom.json" ]
+```
+
+## Configuration
+
+The following configuration file is an example. Please replace the desired
+values like the mqtt url and add your MyStrom Switch devices. Automatic
+discovery is currently not available.
+
+```json
+{
+    "log": "debug",
+    "mqtt": {
+        "url": "mqtt://192.168.1.10",
+        "name": "mystrom",
+        "secure": false
+    },
+    "mystrom": {
+        "pollInterval": 60,
+        "switchDevices": [
+            {
+                "name": "MyStrom Switch 1",
+                "address": "192.168.1.20"
+            }
+        ]
+    }
+}
+```
 
 ## Topics
 

@@ -88,7 +88,7 @@ function getMyStromSwitch(switchDevice, successCallback) {
     request.get('http://' + switchDevice.address + '/report', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             device = JSON.parse(body);
-            log.info('mystrom switch: relay = ' + device.relay + ' / power = ' + device.power);
+            log.debug('mystrom switch: relay = ' + device.relay + ' / power = ' + device.power);
             successCallback(device);
         }
         else {
@@ -99,7 +99,7 @@ function getMyStromSwitch(switchDevice, successCallback) {
 
 function pollMyStromSwitch() {
 
-    log.info('mystrom switch: poll status');
+    log.debug('mystrom switch: poll status');
 
     cfg.mystrom.switchDevices.forEach(switchDevice => {
         publishMqttStatus(switchDevice);

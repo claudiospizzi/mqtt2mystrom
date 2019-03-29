@@ -1,6 +1,6 @@
 {
   "name": "mqtt2mystrom",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Node.js based interface between MQTT and MyStrom for a smart home",
   "keywords": [
     "smarthome"

@@ -7,7 +7,7 @@ const request = require('request');
 const pkg = require('./package.json');
 const cfg = require(process.argv[2] || './config.json');
 
-let connected;
+let mqttConnected;
 
 log.setLevel(cfg.log);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
@@ -23,7 +23,7 @@ mqttClient.on('connect', () => {
 
     mqttClient.publish(cfg.mqtt.name + '/connected', '2', { retain: true });
 
-    connected = true;
+    mqttConnected = true;
     log.info('mqtt: connected ' + cfg.mqtt.url);
 
     cfg.mystrom.switchDevices.forEach(switchDevice => {
@@ -34,8 +34,8 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('close', () => {
 
-    if (connected) {
-        connected = false;
+    if (mqttConnected) {
+        mqttConnected = false;
         log.info('mqtt: disconnected ' + cfg.mqtt.url);
     }
 });

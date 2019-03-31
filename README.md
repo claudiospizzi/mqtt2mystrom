@@ -25,7 +25,7 @@ following Dockerfile to build a container injecting the config file.
 ```dockerfile
 FROM node:alpine
 
-RUN npm install -g mqtt2mystrom@1.0.3
+RUN npm install -g mqtt2mystrom
 
 COPY config.json /etc/mqtt2mystrom.json
 

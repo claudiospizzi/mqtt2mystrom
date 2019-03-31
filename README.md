@@ -3,7 +3,6 @@
 [![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg?style=flat-square)](https://github.com/mqtt-smarthome/mqtt-smarthome)
 [![npm](https://img.shields.io/npm/v/mqtt2mystrom.svg?style=flat-square)](https://www.npmjs.com/package/mqtt2mystrom)
 [![travis](https://img.shields.io/travis/claudiospizzi/mqtt2mystrom.svg?style=flat-square)](https://travis-ci.org/claudiospizzi/mqtt2mystrom)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square)](https://github.com/semantic-release/semantic-release)
 
 This node.js application is a bridge between the [MyStrom Switches] and a mqtt
 broker. The relay status and the current power usage is published to mqtt. The

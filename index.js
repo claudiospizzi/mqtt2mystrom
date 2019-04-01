@@ -4,6 +4,8 @@ const log = require('yalm');
 const mqtt = require('mqtt');
 const request = require('request');
 
+const mystrom = require('./modules/mystrom.js');
+
 const pkg = require('./package.json');
 const cfg = require(process.argv[2] || './config.json');
 
@@ -49,77 +51,48 @@ mqttClient.on('message', (topic, payload, msg) => {
 
     cfg.mystrom.switchDevices.forEach(switchDevice => {
         if ((cfg.mqtt.name + '/set/' + switchDevice.name + '/on') === topic) {
-            setMyStromSwitch(switchDevice, 'on');
+            mystrom.setSwitchRelayOn(switchDevice.address, (error) => {
+                if (error) {
+                    log.error(error);
+                }
+                else {
+                    log.info('mystrom switch: turn ' + switchDevice.address + ' on');
+                }
+            });
         }
         if ((cfg.mqtt.name + '/set/' + switchDevice.name + '/off') === topic) {
-            setMyStromSwitch(switchDevice, 'off');
+            mystrom.setSwitchRelayOff(switchDevice.address, (error) => {
+                if (error) {
+                    log.error(error);
+                }
+                else {
+                    log.info('mystrom switch: turn ' + switchDevice.address + ' off');
+                }
+            });
         }
     });
 });
-
-function setMyStromSwitch(switchDevice, mode) {
-
-    switch (mode) {
-        case 'on':
-            url = 'http://' + switchDevice.address + '/relay?state=1';
-            break;
-        case 'off':
-            url = 'http://' + switchDevice.address + '/relay?state=0';
-            break;
-        default:
-            log.error('mystrom switch: error mode ' + mode + ' not supported');
-            return;
-    }
-
-    request.get(url, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            log.info('mystrom switch: turn ' + switchDevice.address + ' ' + mode);
-        }
-        else {
-            log.error('mystrom switch: error set mode ' + error);
-        }
-    });
-
-    publishMqttStatus(switchDevice);
-}
-
-function getMyStromSwitch(switchDevice, successCallback) {
-
-    request.get('http://' + switchDevice.address + '/report', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            device = JSON.parse(body);
-            log.debug('mystrom switch: relay = ' + device.relay + ' / power = ' + device.power);
-            successCallback(device);
-        }
-        else {
-            log.error('mystrom switch: error get report ' + error);
-        }
-    });
-}
 
 function pollMyStromSwitch() {
 
     log.debug('mystrom switch: poll status');
 
     cfg.mystrom.switchDevices.forEach(switchDevice => {
-        publishMqttStatus(switchDevice);
-    });
-}
 
-function publishMqttStatus(switchDevice) {
+        mystrom.getSwitchStatus(switchDevice.address, (error, response) => {
 
-    getMyStromSwitch(switchDevice, function(switchDeviceStatus) {
+            ts = Date.now() / 1000;
 
-        ts = Date.now() / 1000;
+            payloadRelay = { ts: ts, val: response.relay ? 1 : 0 };
 
-        payloadRelay = { ts: ts, val: switchDeviceStatus.relay ? 1 : 0 };
-        payloadPower = { ts: ts, val: switchDeviceStatus.power };
+            mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDevice.name, JSON.stringify(payloadRelay), { retain: true });
+            log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDevice.name + ' ' + JSON.stringify(payloadRelay));
 
-        mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDevice.name, JSON.stringify(payloadRelay), { retain: true });
-        log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDevice.name + ' ' + JSON.stringify(payloadRelay));
+            payloadPower = { ts: ts, val: response.power };
 
-        mqttClient.publish(cfg.mqtt.name + '/power/' + switchDevice.name, JSON.stringify(payloadPower));
-        log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDevice.name + ' ' + JSON.stringify(payloadPower));
+            mqttClient.publish(cfg.mqtt.name + '/power/' + switchDevice.name, JSON.stringify(payloadPower));
+            log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDevice.name + ' ' + JSON.stringify(payloadPower));
+        });
     });
 }
 

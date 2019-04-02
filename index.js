@@ -81,14 +81,12 @@ function pollMyStromSwitch() {
 
         mystrom.getSwitchStatus(switchDevice.address, (error, response) => {
 
-            ts = Date.now() / 1000;
-
-            payloadRelay = { ts: ts, val: response.relay ? 1 : 0 };
+            payloadRelay = { ts: Date.now(), val: response.relay ? 1 : 0 };
 
             mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDevice.name, JSON.stringify(payloadRelay), { retain: true });
             log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDevice.name + ' ' + JSON.stringify(payloadRelay));
 
-            payloadPower = { ts: ts, val: response.power };
+            payloadPower = { ts: Date.now(), val: response.power };
 
             mqttClient.publish(cfg.mqtt.name + '/power/' + switchDevice.name, JSON.stringify(payloadPower));
             log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDevice.name + ' ' + JSON.stringify(payloadPower));

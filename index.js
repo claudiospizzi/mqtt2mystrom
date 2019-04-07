@@ -2,7 +2,6 @@
 
 const log = require('yalm');
 const mqtt = require('mqtt');
-const request = require('request');
 
 const mystrom = require('./modules/mystrom.js');
 

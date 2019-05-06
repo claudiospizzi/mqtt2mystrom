@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 
+
+/**
+ * SETUP
+ */
+
+// Global modules
 const log = require('yalm');
 const mqtt = require('mqtt');
 
+// Local modules
 const mystrom = require('./modules/mystrom.js');
 
 const pkg = require('./package.json');
 const cfg = require(process.argv[2] || './config.json');
 
-let mqttConnected;
-
 log.setLevel(cfg.log);
 log.info(pkg.name + ' ' + pkg.version + ' starting');
+
+
+/**
+ * SETUP MQTT
+ */
+
+let mqttConnected;
 
 const mqttClient = mqtt.connect(
     cfg.mqtt.url, {
@@ -71,6 +83,11 @@ mqttClient.on('message', (topic, payload, msg) => {
         }
     });
 });
+
+
+/**
+ * POLLING LOGIC
+ */
 
 function pollMyStromSwitch() {
 

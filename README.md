@@ -11,7 +11,7 @@ relay state (on, off) can be controlled over mqtt.
 ## Installation
 
 This node.js application is installed from the npm repository and executed with
-the node command.
+the node command. It will load the default configuration file *config.json*.
 
 ```bash
 npm install -g mqtt2mystrom
@@ -19,7 +19,7 @@ node /usr/local/bin/mqtt2mystrom
 ```
 
 Alternatively, the module can be executed as a docker container. Use the
-following Dockerfile to build a container injecting the config file.
+following Dockerfile to build a container by injecting the config file.
 
 ```dockerfile
 FROM node:alpine
@@ -35,7 +35,7 @@ ENTRYPOINT [ "/usr/local/bin/mqtt2mystrom", "/etc/mqtt2mystrom.json" ]
 
 The following configuration file is an example. Please replace the desired
 values like the mqtt url and add your MyStrom Switch devices. Automatic
-discovery is currently not available.
+discovery of MyStrom Switch devices is currently not possible.
 
 ```json
 {
@@ -59,21 +59,23 @@ discovery is currently not available.
 
 ## Topics
 
-### Status messages
+### Publish: Status Messages)
 
-The current relay status will be published to `mystrom/relay/<SwitchName>` in
-retained mode. The `val` will contain `0` if the switch is turned off and not
-relaying power and `1` if the switch is turned on and relaying power.
+The current relay status and power usage is published to the following topics:
+* `mystrom/relay/<SwitchName>`  
+  The `val` will contain `0` if the switch is turned off and not relaying power
+  and `1` if the switch is turned on and relaying power.
+* `mystrom/power/<SwitchName>`  
+  With the interval of the polling configuration, normally every minute, the
+  current power usage is published to this topic. The currently used watt is in
+  the payload `val`.
 
-With the interval of the polling configuration, normally every minute, the
-current power usage is published to `mystrom/power/<SwitchName>`. It will
-contain the currently used watt in the payload `val`.
+### Subscribe: Control Switch Relay
 
-### Control switch relay
-
-To control the relay status of a switch, use on of the self explained topics
-without any payload:
-* `mystrom/set/<SwitchName>/on`
-* `mystrom/set/<SwitchName>/off`
+To control the relay status of a MyStrom Switch, use the following topics:
+* `mystrom/set/<SwitchName>/on`  
+  Turn power relaying on. No payload required.
+* `mystrom/set/<SwitchName>/off`  
+  Turn power relaying off. No payload required.
 
 [MyStrom Switches]: https://mystrom.ch/de/wifi-switch/

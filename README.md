@@ -59,7 +59,7 @@ discovery of MyStrom Switch devices is currently not possible.
 
 ## Topics
 
-### Publish: Status Messages)
+### Publish: Status Messages
 
 The current relay status and power usage is published to the following topics:
 * `mystrom/relay/<SwitchName>`  

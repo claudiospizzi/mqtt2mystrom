@@ -68,6 +68,11 @@ mqttClient.on('message', (topic, payload, msg) => {
                 }
                 else {
                     log.info('mystrom switch: turn ' + switchDevice.address + ' on');
+
+                    mystrom.getSwitchStatus(switchDevice.address, (error, response) => {
+
+                        publishMyStromSwitchRelay(switchDevice.name, response.relay);
+                    });
                 }
             });
         }
@@ -78,11 +83,37 @@ mqttClient.on('message', (topic, payload, msg) => {
                 }
                 else {
                     log.info('mystrom switch: turn ' + switchDevice.address + ' off');
+
+                    mystrom.getSwitchStatus(switchDevice.address, (error, response) => {
+
+                        publishMyStromSwitchRelay(switchDevice.name, response.relay);
+                    });
                 }
             });
         }
     });
 });
+
+
+/**
+ * PUBLISH FUNCTION
+ */
+
+function publishMyStromSwitchRelay(switchDeviceName, relay) {
+
+    payloadRelay = { ts: Date.now(), val: relay ? 1 : 0 };
+
+    mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDeviceName, JSON.stringify(payloadRelay), { retain: true });
+    log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDeviceName + ' ' + JSON.stringify(payloadRelay));
+}
+
+function publishMyStromSwitchPower(switchDeviceName, power) {
+
+    payloadPower = { ts: Date.now(), val: power };
+
+    mqttClient.publish(cfg.mqtt.name + '/power/' + switchDeviceName, JSON.stringify(payloadPower));
+    log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDeviceName + ' ' + JSON.stringify(payloadPower));
+}
 
 
 /**
@@ -97,15 +128,9 @@ function pollMyStromSwitch() {
 
         mystrom.getSwitchStatus(switchDevice.address, (error, response) => {
 
-            payloadRelay = { ts: Date.now(), val: response.relay ? 1 : 0 };
+            publishMyStromSwitchRelay(switchDevice.name, response.relay);
 
-            mqttClient.publish(cfg.mqtt.name + '/relay/' + switchDevice.name, JSON.stringify(payloadRelay), { retain: true });
-            log.info('mqtt: publish ' + cfg.mqtt.name + '/relay/' + switchDevice.name + ' ' + JSON.stringify(payloadRelay));
-
-            payloadPower = { ts: Date.now(), val: response.power };
-
-            mqttClient.publish(cfg.mqtt.name + '/power/' + switchDevice.name, JSON.stringify(payloadPower));
-            log.info('mqtt: publish ' + cfg.mqtt.name + '/power/' + switchDevice.name + ' ' + JSON.stringify(payloadPower));
+            publishMyStromSwitchPower(switchDevice.name, response.power);
         });
     });
 }
